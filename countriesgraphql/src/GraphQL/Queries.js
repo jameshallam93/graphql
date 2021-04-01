@@ -10,6 +10,9 @@ export const LOAD_COUNTRIES = gql`
             }
             capital
             currency
+            languages{
+                name
+            }
         }
     }
 
