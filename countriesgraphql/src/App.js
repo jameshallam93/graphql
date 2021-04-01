@@ -4,9 +4,9 @@ import GetCountries from "./components/GetCountries"
 
 const errorLink = onError(({graphqlErrors, networkErrors})=> {
   if (graphqlErrors){
-    graphqlErrors.map(({message, location, path})=>{
+    graphqlErrors.map(({message, location, path})=>
       alert(`graphql error ${message}`)
-    })
+    )
   }
 
 })

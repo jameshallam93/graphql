@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react"
 import { useQuery } from "@apollo/client"
+
 import { LOAD_COUNTRIES } from "../GraphQL/Queries"
+import ContinentFilter from "./ContinentFilter"
 
 
 const GetCountries = () => {
     const { error, loading, data } = useQuery(LOAD_COUNTRIES)
     const [countries, setCountries] = useState([])
-    const [countryFilter, setCountryFilter] = useState(false)
+    const [continentFilter, setContinentFilter] = useState("")
     const [filteredCountries, setFilteredCountries] = useState([])
-
+    const [languageFilter, setLanguageFilter] = useState("")
 
     useEffect(() => {
         if (data) {
@@ -20,38 +22,65 @@ const GetCountries = () => {
         setFilteredCountries(countries)
     }, [countries])
 
-    const handleChange = (event) => {
-        setCountryFilter(event.target.value)
+    const handleContinentChange = (event) => {
+        setContinentFilter(event.target.value)
     }
 
-    const applyFilter = () => {
+    const handleLanguageChange = (event) =>{
+        setLanguageFilter(event.target.value)
+    }
 
-        console.log(countryFilter);
+    const applyAllFilters = () =>{
+        const continentFiltered = applyContinentFilter(countries)
+        const languageFiltered = applyLanguageFilter(continentFiltered)
 
-        const filtered = countries.filter(country =>
-            country.continent.name === countryFilter
-        )
-        setFilteredCountries(filtered)
+        setFilteredCountries(languageFiltered)
+    }
 
+    const applyContinentFilter = (countries) => {
+
+        console.log(continentFilter);
+        if (continentFilter){
+            const filtered = countries.filter(country =>
+                country.continent.name === continentFilter
+            )
+            return filtered
+        }
+        return countries
+    }
+    
+    const applyLanguageFilter = (countries) =>{
+
+        if (languageFilter){
+            //messy way of checking first two languages to see if they match with the language filter
+            const filtered = countries.filter(country =>{
+                if (country.languages[1]){
+                    if (country.languages[1].name === languageFilter){
+                        return true
+                }}
+                if (country.languages[0]){
+                    if (country.languages[0].name === languageFilter){
+                        return true
+                    }
+                }
+                return false
+            })
+                return filtered
+        }
+        return countries        
     }
 
     return (
         <div>
+            <ContinentFilter handleChange = {handleContinentChange} />
             <form>
-                <input type="radio" value="Europe" id="europe" onChange={handleChange} name="continent" />
-                <label htmlFor={"Europe"}>Europe</label>
-                <input type="radio" value="Africa" id="africa" onChange={handleChange} name="continent" />
-                <label htmlFor={"Africa"}>Africa</label>
-                <input type="radio" value="South America" id="south america" onChange={handleChange} name="continent" />
-                <label htmlFor={"South America"}>South America</label>
-                <input type="radio" value="Asia" id="asia" onChange={handleChange} name="continent" />
-                <label htmlFor={"Asia"}>Asia</label>
-                <input type="radio" value="Oceania" id="oceania" onChange={handleChange} name="continent" />
-                <label htmlFor={"Oceania"}>Oceania</label>
-                <input type="radio" value="Antarctica" id="antartcica" onChange={handleChange} name="continent" />
-                <label htmlFor={"Antarctica"}>Antarctica</label>
+                <input type = "radio" value = "English" onChange = {handleLanguageChange} name = "language"/>
+                <label htmlFor = {"English"}>English</label>
+                <input type = "radio" value = "French" onChange = {handleLanguageChange} name = "language"/>
+                <label htmlFor = {"French"}>French</label>
+
             </form>
-            <button onClick={applyFilter}> check</button>
+            <button onClick={applyAllFilters}> Apply Filter(s)</button>
             <ul>
                 {filteredCountries.map(country => {
                     return (
